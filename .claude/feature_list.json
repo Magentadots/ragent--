@@ -1,0 +1,101 @@
+[
+  {
+    "id": "init_agent_governance",
+    "priority": 1,
+    "area": "docs",
+    "title": "构建 AI Agent 结构化治理文档体系",
+    "user_visible_behavior": "拥有全套 Agent 引导和控制文档，包括 AGENTS.md, .claude/PROJECT_CONTEXT.md, .claude/claude-progress.md, .claude/feature_list.json，供开发 Agent 开工自动加载。",
+    "status": "passing",
+    "verification": "验证根目录的 AGENTS.md 及 .claude/ 下对应文档均存在且内容自洽。",
+    "evidence": "Completed building of all 4 governance files and migrated them to the .claude directory as requested. Documents are formatted with clickable file links and strictly custom-tailored to Ragent architecture.",
+    "notes": "本轮建立的架构治理规范文档。"
+  },
+  {
+    "id": "multi_channel_retrieval",
+    "priority": 2,
+    "area": "rag",
+    "title": "设计并实现多通道检索核心引擎",
+    "user_visible_behavior": "问答检索时能够并行启动所有启用的检索通道，并在检索后按责任链执行后置处理器链。",
+    "status": "passing",
+    "verification": "检查 MultiChannelRetrievalEngine.java 的实现与执行逻辑，确保支持多通道并行和后置处理责任链。",
+    "evidence": "MultiChannelRetrievalEngine and channel/postprocessor packages have been fully implemented in bootstrap and integrated into RetrievalEngine.",
+    "notes": "核心扩展架构，关闭了旧架构单路检索扩展性差的问题。"
+  },
+  {
+    "id": "vector_global_channel",
+    "priority": 3,
+    "area": "rag",
+    "title": "实现向量全局检索通道 (VectorGlobalSearchChannel)",
+    "user_visible_behavior": "当意图置信度低或意图为空时自动启用，从所有知识库 collection 中执行检索，作为全局兜底召回。",
+    "status": "passing",
+    "verification": "当发送无法分类到明确意图的主题时，触发 VectorGlobalSearchChannel 进行全局向量查询。",
+    "evidence": "VectorGlobalSearchChannel.java implemented, verifying confidence-threshold < 0.6 check and CollectionParallelRetriever call.",
+    "notes": "提供意图识别失败时的基础兜底保障。"
+  },
+  {
+    "id": "intent_directed_channel",
+    "priority": 4,
+    "area": "rag",
+    "title": "实现意图定向检索通道 (IntentDirectedSearchChannel)",
+    "user_visible_behavior": "当意图评分大于最低分数阈值时，自动定位到意图绑定的 Collection 执行高精准度检索。",
+    "status": "passing",
+    "verification": "发送明确处于意图树中的示例问题，确认系统命中 IntentDirectedSearchChannel 并从特定 collection 进行召回。",
+    "evidence": "IntentDirectedSearchChannel.java implemented, verified in retrieve pipeline.",
+    "notes": "精细化意图场景下的精确数据匹配。"
+  },
+  {
+    "id": "deduplication_postprocessor",
+    "priority": 5,
+    "area": "rag",
+    "title": "实现去重后置处理器 (DeduplicationPostProcessor)",
+    "user_visible_behavior": "自动合并来自全局检索和定向检索的重复 Chunk，确保同一 Chunk 不会在 Prompt 中重复出现，节省 Token 并提高可读性。",
+    "status": "passing",
+    "verification": "多通道检索触发后，确认返回的 RetrievedChunk 集合中无重复主键/ID的数据段。",
+    "evidence": "DeduplicationPostProcessor.java registered and tested. Verified it successfully filters duplicate chunks and preserves the highest score.",
+    "notes": "核心后置去重逻辑。"
+  },
+  {
+    "id": "rerank_postprocessor",
+    "priority": 6,
+    "area": "rag",
+    "title": "实现 Rerank 后置处理器 (RerankPostProcessor)",
+    "user_visible_behavior": "对去重后的 Chunk 数据集进行 Rerank 模型重新精排算分，截断并输出最相关的 topK 段落。",
+    "status": "passing",
+    "verification": "确认检索日志中输出了 Rerank 算分耗时及排序变动日志。",
+    "evidence": "RerankPostProcessor.java fully implemented, utilizing RoutingRerankService.",
+    "notes": "提高大模型回答的相关度与精准度。"
+  },
+  {
+    "id": "keyword_es_search_channel",
+    "priority": 7,
+    "area": "rag",
+    "title": "扩展实现 Elasticsearch 关键词检索通道 (ES SearchChannel)",
+    "user_visible_behavior": "当问题包含强关键词（如具体订单号或专用名词）时，开启 ES 关键词搜索，与向量检索进行混合多路召回。",
+    "status": "not_started",
+    "verification": "1. 增加 ES 依赖与配置。2. 编写 KeywordESSearchChannel。3. 编写对应测试用例验证混合召回率。",
+    "evidence": "",
+    "notes": "未来中高优先级扩展任务。"
+  },
+  {
+    "id": "version_filter_postprocessor",
+    "priority": 8,
+    "area": "rag",
+    "title": "实现版本/时效性过滤处理器 (VersionFilterPostProcessor)",
+    "user_visible_behavior": "检索出的文档块若有版本标识，后置处理器会根据策略过滤掉过期版本，只保留最新版送入 Prompt。",
+    "status": "not_started",
+    "verification": "1. 编写 VersionFilterPostProcessor。2. 对包含多版本测试的文档块执行处理，验证输出仅包含最高版本。",
+    "evidence": "",
+    "notes": "解决知识库文档时序/时效性差的痛点。"
+  },
+  {
+    "id": "score_normalization_postprocessor",
+    "priority": 9,
+    "area": "rag",
+    "title": "实现检索分数归一化处理器 (ScoreNormalizationPostProcessor)",
+    "user_visible_behavior": "将向量相似度分数和 ES 分数归一化到统一的 0-1 尺度上，便于不同召回渠道的数据进行公平融合或硬阈值截断。",
+    "status": "not_started",
+    "verification": "1. 编写 ScoreNormalizationPostProcessor。2. 验证各通道召回后的分数都归一化到规定区间，无分值倾斜。",
+    "evidence": "",
+    "notes": "优化多路检索算分融合精度的必经之路。"
+  }
+]
