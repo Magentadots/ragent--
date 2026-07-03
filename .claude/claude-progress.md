@@ -4,12 +4,22 @@
 * **仓库根目录**: `/media/dots/dataset/Code/CODE_JAVA/ragent`
 * **标准构建路径**: `./mvnw clean compile`
 * **标准测试路径**: `./mvnw clean test`
-* **当前最高优先级未完成功能**: `init_agent_governance` (优先级 1)
+* **当前最高优先级未完成功能**: `keyword_es_search_channel` (优先级 7)
 * **当前 blocker**: 无
 
 ---
 
 ## 会话记录 (Session Log)
+
+### [2026-07-03] 会话 2 (整理 Tika 调用逻辑)
+* **本轮目标**:
+  - 系统整理项目中关于 Apache Tika 的调用逻辑、职责边界和主要接入点。
+* **已完成**:
+  - 创建并编写了 [tika_invocation_logic.md](file:///home/dots/.gemini/antigravity-ide/brain/97489c37-b7e7-48f7-90ef-caf2d97a841c/tika_invocation_logic.md) 整理报告，覆盖 MIME 探测、纯文本解析 (`TikaDocumentParser`) 及其 v1.1 路由收紧限制、字符集探测 (`AutoDetectReader`)、策略路由与依赖配置等细节。
+* **运行过的验证**:
+  - 静态代码走查与各模块依赖引用关系核对。
+
+---
 
 ### [2026-07-03] 会话 1 (构建 Agent 治理与结构化文档体系)
 * **本轮目标**:
@@ -24,3 +34,4 @@
 * **运行过的验证**:
   - 验证了所有文档存在并可正常互相引用。
   - 执行 `./mvnw test-compile` 通过全量类编译（BUILD SUCCESS）。
+
